@@ -1,0 +1,8 @@
+zebra.png
+turtle.png
+
+running 1
+swimming 2
+mammal 1
+stripes 1
+longevity 2
