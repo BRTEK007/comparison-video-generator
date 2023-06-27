@@ -1,6 +1,11 @@
 # comparison-video-generator
 Generates a comparison video in a template from configuration file.
 
+## screenshots
+![](/screenshots/1.png)
+![](/screenshots/2.png)
+![](/screenshots/3.png)
+
 ## executing
 ```console
 python3 generator.py --config=example/config.txt
