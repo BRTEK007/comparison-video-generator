@@ -53,21 +53,42 @@ class Config:
             print('ERROR config file format', file=sys.stderr)
             exit(-1)
 
+def get_text_clip(text):
+    return (TextClip(text, size=(640, None),color='white', stroke_color='black', stroke_width=2)
+                      .set_position('center')
+                      .set_duration(1))
+
 def generate_video(config):
     img1, img2 = get_images(config.img_paths[0], config.img_paths[1])
-    single_slide_1 = get_single_slide(img1)
-    single_slide_2 = get_single_slide(img2)
+    single_slides = [get_single_slide(img1), get_single_slide(img2)]
     joined_slide = get_joined_slide(img1, img2)
 
-    single_clip_1 = ImageClip(single_slide_1).set_duration(1)
-    single_clip_2 = ImageClip(single_slide_2).set_duration(1)
+    single_clips = list(map(lambda x: ImageClip(x).set_duration(1), single_slides))
+
     joined_clip = ImageClip(joined_slide).set_duration(1)
 
-    #txt = '{}\nvs\n{}'.format(config.names[0], config.names[1])
-    #intro_txt_clip = (TextClip('vs', fontsize=70, color='white'))
+    intro_txt_clip = get_text_clip('{}\nvs\n{}'.format(config.names[0], config.names[1])) 
 
-    result = concatenate_videoclips([joined_clip])
-    return result
+    intro_clip = CompositeVideoClip([joined_clip, intro_txt_clip])
+    out_clip = concatenate_videoclips([intro_clip])
+
+    scores = [0, 0]
+
+    for category, winner in config.comparisons:
+        scores[winner] += 1
+        category_txt_clip = get_text_clip(category)
+        score_txt_clip = get_text_clip('{}-{}'.format(scores[0], scores[1]))
+        out_clip = concatenate_videoclips([out_clip, 
+                                        CompositeVideoClip([joined_clip, category_txt_clip]),
+                                        CompositeVideoClip([single_clips[winner], score_txt_clip])])
+                                         
+    final_winner = 0 if scores[0] > scores[1] else 1
+
+    out_clip = concatenate_videoclips([out_clip, 
+                CompositeVideoClip([joined_clip, get_text_clip('winner')]),
+                CompositeVideoClip([single_clips[final_winner], get_text_clip('{}-{}'.format(scores[0], scores[1]))])])
+
+    return out_clip
 
 def main():
     parser = argparse.ArgumentParser()
@@ -79,7 +100,7 @@ def main():
 
     video = generate_video(config)
     
-    video.write_videofile('out.mp4',fps=30)
+    video.write_videofile('out.mp4',fps=2)
 
 if __name__ == '__main__':
     main()
