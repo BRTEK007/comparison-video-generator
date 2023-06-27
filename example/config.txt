@@ -1,5 +1,5 @@
-zebra.png
-turtle.png
+zebra.jpg
+turtle.jpg
 
 zebra
 turtle
