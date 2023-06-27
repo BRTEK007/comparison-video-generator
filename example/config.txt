@@ -1,6 +1,9 @@
 zebra.png
 turtle.png
 
+zebra
+turtle
+
 running 1
 swimming 2
 mammal 1
